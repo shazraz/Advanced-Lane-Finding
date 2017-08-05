@@ -74,12 +74,13 @@ The complete operation with individual binaries and their combinations is shown 
 
 Additional test images were then extracted from the project video using the following code block:
 ```
+#Reference: https://stackoverflow.com/questions/27481993/extracting-image-from-video-at-a-given-time-using-opencv
 #Extract images from video
 vidcap = cv2.VideoCapture('project_video.mp4')
-vidcap.set(cv2.CAP_PROP_POS_MSEC,1370)      # just cue to 20 sec. position
+vidcap.set(cv2.CAP_PROP_POS_MSEC,1370)      
 success,image = vidcap.read()
 if success:
-    cv2.imwrite("test_images\\test.jpg", image)     # save frame as JPEG file
+    cv2.imwrite("test_images\\test.jpg", image)    
     cv2.imshow("Test Image",image)
     cv2.waitKey()
 ```
