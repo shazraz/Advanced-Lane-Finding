@@ -148,7 +148,7 @@ The plotted lines and region are then unwarped using an inverse transform of sou
 
 ## 3. Video Pipeline
 
-The image pipeline is applied to the project video clip. The processed video is available at the link below:
+The image pipeline is applied to the project video clip. The processed video is available at the following link:
 [Project Video](https://youtu.be/4l2KjxlFeIc)
 
 ## 4. Discussion
