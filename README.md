@@ -153,4 +153,10 @@ The image pipeline is applied to the project video clip. The processed video is 
 
 ## 4. Discussion
 
+The proposed pipeline works fairly well for the project video, however, one major limitation is the lack of smoothing on the plotted lines. A moving average window could be implemented to reduce the variations in the plotted lines from frame to frame.
 
+Additionally, it was noted that the thresholding parameters used on the project video did not work well for the challenge video. A separate set of threshold parameters and a modified ROI were applied to the challenge video with limited success. The pipeline appeared to fail completely in areas that were completed shaded, such as under the bridge in the challenge video. It is assumed that this would be alleviated by using the moving average window discussed above. It is also noted that the sobel gradients do not contribute to the final composite thresholded image and are of limited used in the challenge video.
+
+Adaptive thresholding should improve the performance of the algorithm under varying lighting conditions where the thresholds could be adjusted dynamically. In addition, an automated way to select the source and destination points to perform the perspective transform may also help for varying lane locations.
+
+The following link provides the results for the pipeline on the challenge video. Note the gap in the identified lanes in the region underneath the bridge: [Challenge Video](https://youtu.be/ggPdIPluvak)
