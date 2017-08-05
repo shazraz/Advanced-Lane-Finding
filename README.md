@@ -142,7 +142,7 @@ The ROC is calculated individually for each plotted line and then averaged. The 
     image_center = int(image.shape[1]/2)
     offset = (lane_center - image_center) * xm_per_pix
 ```
-The plotted lines and region are then unwarped using an inverse transform of source and destination points previously identified and overlayed on the original frame. The upper subplots in the image below show the original and final output of the pipeline. The lower subplots show the binary warped image sliced into eight windows and the convolution result with the 3rd window from the base of the image.
+The plotted lines and region are then unwarped using an inverse transform of source and destination points previously identified and overlayed on the original frame. The upper subplots in the image below show the original and final output of the pipeline. The lower subplots show the binary warped image sliced into eight windows with the polynomial fits overlayed and the convolution result with the 3rd window from the base of the image.
 
 <img src="./output_images/final_image.jpg">
 
