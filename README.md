@@ -11,11 +11,6 @@ The goals / steps of this project are the following:
 - Warp the detected lane boundaries back onto the original image.
 - Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-[//]: # (Image References)
-
-[image1]: ./camera_cal/calibration3.jpg "Chessboard Image"
-[image2]: ./camera_cal/calibration3_cal.jpg "Chessboard Image with corners drawn"
-
 ## 1. Camera Calibration
 
 The first step of the exercise is to correctly calibrate the camera and and calculate the distortion co-efficients so that the input images can be undistorted prior to processing. The OpenCV functions ```cv2.findChessboardCorners()``` and ```cv2.drawChessboardCorners()``` are used to first find the corners of a 9x6 chessboard and determine the calibration matrix to calibrate the camera. The image below shows an example of the corners identified.
@@ -26,14 +21,14 @@ Original Image             |  Image with corners
 
 The identified corners are stored in the ```img_points``` array and transformed to the prepared ```obj_points``` array which consists of a square grid. The image below shows an example of an undistorted chessboard image once the calibration matrix has been calculated. Please refer to code block 4 in the project notebook for details.
 
-<img src="./output_images/UndistortedChessboard.jpg">
+<img src="./output_images/UndistortedChessboard.png">
 
 ## 2. Image pipeline
 
 ### 2.1 Undistort Image
 The first step in the image pipeline is to undistort the input images using the calibration matrix calculated earlier. The image below shows a comparison of a distorted and undistorted test image.
 
-<img src="./output_images/UndistortedTest.jpg">
+<img src="./output_images/UndistortedTest.png">
 
 Next a combination of gradient and color thresholding is applied to extract the lane locations from the image.
 
