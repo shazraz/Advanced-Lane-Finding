@@ -1,4 +1,4 @@
-# Advanced-Lane-Finding
+# Advanced Lane Finding
 
 The goals / steps of this project are the following:
 
@@ -77,8 +77,85 @@ output = OR_binaries(color_output, grad_output)
 The complete operation with individual binaries and their combinations is shown in the image below:
 <img src="./output_images/threshold_image.jpg">
 
+Additional test images were then extracted from the project video using the following code block:
+```
+#Extract images from video
+vidcap = cv2.VideoCapture('project_video.mp4')
+vidcap.set(cv2.CAP_PROP_POS_MSEC,1370)      # just cue to 20 sec. position
+success,image = vidcap.read()
+if success:
+    cv2.imwrite("test_images\\test.jpg", image)     # save frame as JPEG file
+    cv2.imshow("Test Image",image)
+    cv2.waitKey()
+```
+The thresholding was tested on all the test images. The results are shown below:
+<img src="./output_images/pipeline_test.jpg">
+
 ### 2.3 Perspective Transformation
 
+The perspective transform is performed by the ```warp_image()``` function which takes the input image, source points and destination points as arguments. A region of interest was drawn on the image to mask the lane lines and warped so that the vertical edges of the resulting polygon appeared parallel in the output image. The source points were tweaked so that lane lines that were expected to be straight appeared straight and parallel in the warped image.
+```
+def warp_image(img, src, dst):
+    img_size = (img.shape[1], img.shape[0])
+    M = cv2.getPerspectiveTransform(src, dst)
+    img = cv2.warpPerspective(img, M, img_size, flags = cv2.INTER_LINEAR)
+    return img
+```
+The source and destination points used were as follows:
 
+|              | Source      | Destination |
+|--------------|-------------|-------------|
+| Bottom Left  | (0, 700)    | (0, 720)    |
+| Top Left     | (545, 460)  | (0, 0)      |
+| Top Right    | (735, 460)  | (1280, 0)   |
+| Bottom Right | (1280, 700) | (1280, 720) |
+
+The image below shows the ROI used and transformed image using an RGB input image:
+<img src="./output_images/perspective_transform.jpg">
+
+### 2.4 Finding the lane lines
+
+The next step is to determine the location of the lane lines in the transformed image using the ```find_centers()``` function.. The image is split into horizontal slices of number ```n_windows``` and summed vertically along each pixel column to obtain the count of non-zero pixels in each column. The resulting array of shape (1280,) is then convolved with a convolution windows of width ```window_width``` and height ```windows_height```. The position of the maximum value from the resulting convolution is returned and corrected for the width of the convolution window.
+
+The convolution process starts at the base of the image which is closest to the vehicle. The ```scan_slice()``` function is used to locate the position of the left and right lane lines. The left and right sides of the images are convolved with the convolution window separately and non-zero values for the x-coordinates are returned value only if the count of non-zero pixels is higher than a threshold of 10. This is done to wean out any noise or artifacts that may bias the result. The returned values are checked to confirm that they are non-zero and make sure a maximum value was actually found. The x-coordinates are then paired with their y-coordinates and appended to either the ```r_centers``` or ```l_centers``` array.
+
+Once a pair of coordinates is located for the left and right lane lines, the ```scan_margin()``` function is used to locate the lane lines on the next window level up. The ```scan_margin()``` function executes only if non-zero values are provided as inputs for the x-coordiantes of both the left and right lanes. Otherwise, the ```scan_slice()``` function is used to identify the lane line coordinates and, once again, only non-zero values are appended to the ```r_centers``` or ```l_centers``` arrays.
+
+Once the arrays are built, the ```check_centers()``` function is used to validate the arrays. The Z-scores for the x-coordinates of the arrays are calculated and any point with a score higher than 1.9 is discarded. This is done to eradicate any outliers from the array of point that may skew the polynomial regression fit.
+```
+def check_centers(l_centers, r_centers, z_score):
+    l_mu = np.mean(l_centers[:,0])
+    r_mu = np.mean(r_centers[:,0])
+    l_sig = np.std(l_centers[:,0])
+    r_sig = np.std(r_centers[:,0])
+    lz_score = np.abs(l_centers[:,0] - l_mu)/l_sig
+    rz_score = np.abs(r_centers[:,0] - r_mu)/r_sig
+    return l_centers[lz_score<z_score], r_centers[rz_score<z_score]
+```
+Once the centers have been validation, the ```draw_lines()``` function is then used to perform a polynomial fit of order 2, calculate the radius of curvature and draw the lane lines and region bounded by the lane lines. The excerpt below shows the scale factors used to convert (x,y) coordinates from pixel space to real world space. 
+```
+ #Convert from pixel space to real space
+    ym_per_pix = 30/720 # meters per pixel in y dimension
+    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+```
+The ROC is calculated individually for each plotted line and then averaged. The offset of the vehicle from the lane center is then evaluated at the base of the image as follows:
+```
+ #Measure offset
+    x_left = l_coeff[0]*y_eval**deg + l_coeff[1]*y_eval + l_coeff[2]
+    x_right = r_coeff[0]*y_eval**deg + r_coeff[1]*y_eval + r_coeff[2]
+    lane_center = int((x_left + x_right)/2)
+    image_center = int(image.shape[1]/2)
+    offset = (lane_center - image_center) * xm_per_pix
+```
+The plotted lines and region are then unwarped using an inverse transform of source and destination points previously identified and overlayed on the original frame. The upper subplots in the image below show the original and final output of the pipeline. The lower subplots show the binary warped image sliced into eight windows and the convolution result with the 3rd window from the base of the image.
+
+<img src="./output_images/final_image.jpg">
+
+## 3. Video Pipeline
+
+The image pipeline is applied to the project video clip. The processed video is available at the link below:
+[Project Video](https://youtu.be/4l2KjxlFeIc)
+
+## 4. Discussion
 
 
